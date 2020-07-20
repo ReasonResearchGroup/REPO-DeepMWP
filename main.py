@@ -55,14 +55,7 @@ def Mathen_rule1_2_Runner(cuda_use=False):
     loss=NLLLoss()
     train_data=data_loader.train2vec(batchsize)
     test_data=data_loader.test2vec(batchsize)
-    train_data={'train_var':train_data['train_var'][:2],'train_len':train_data['train_len'][:2],
-        'target_var':train_data['target_var'][:2],'target_len':train_data['target_len'][:2],
-        'sentence':train_data['sentence'][:2],'id':train_data['id'][:2],'num_list':train_data['num_list'][:2],
-        'solution':train_data['solution'][:2]}
-    test_data={'train_var':test_data['train_var'][:2],'train_len':test_data['train_len'][:2],
-        'target_var':test_data['target_var'][:2],'target_len':test_data['target_len'][:2],
-        'sentence':test_data['sentence'][:2],'id':test_data['id'][:2],'num_list':test_data['num_list'][:2],
-        'solution':test_data['solution'][:2]}
+    
     for epo in range(epoch):
         loss_total=0
         model.train()
