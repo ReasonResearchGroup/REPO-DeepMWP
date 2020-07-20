@@ -361,7 +361,7 @@ class Evaluator(object):
         with open("./data/pg_seq_norm_"+str(post_flag)+"_"+name_save+".json", 'w') as f:
             json.dump(pg_total_list, f)
         #if template_flag == True:
-        print  ('--------',acc_right, total_num)
+        print  ('\n--------',acc_right, total_num)
         return count*1.0/total_num, acc_right*1.0/total_num
         # else:
         #     print  ('--------',acc_right, total_num)

@@ -4,11 +4,14 @@ from gensim.models import word2vec
 import torch
 from torch.autograd import Variable
 class math23kDataLoader():
-    def __init__(self):
+    def __init__(self,train_data,test_data,valid_data):
         super().__init__()
-        self.train_data=self.read_data_json("./data/math23k/train23k_processed.json")
-        self.test_data=self.read_data_json("./data/math23k/test23k_processed.json")
-        self.valid_data=self.read_data_json("./data/math23k/valid23k_processed.json")
+        # self.train_data=self.read_data_json("./data/math23k/train23k_processed.json")
+        # self.test_data=self.read_data_json("./data/math23k/test23k_processed.json")
+        # self.valid_data=self.read_data_json("./data/math23k/valid23k_processed.json")
+        self.train_data=train_data
+        self.test_data=test_data
+        self.valid_data=valid_data
 
         self.emb_vectors,self.vocab_list,self.decode_classes_list = self.preprocess_and_word2vec(emb_dim=128)
         self.vocab_2_ind = self.word2ind(self.vocab_list)
