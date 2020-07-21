@@ -19,7 +19,7 @@ class math23kDataLoader():
 
         self.vocab_len=len(self.vocab_list)
         self.decode_classes_len=len(self.decode_classes_list)
-    def train2vec(self,batch_size):
+    def train2vec(self,batch_size,postfix):
         var=[]
         lenth=[]
         target_var=[]
@@ -59,11 +59,18 @@ class math23kDataLoader():
             batch_len=[]
             for templete in batch_data:
                 vec=[]
-                for j in templete['target_template'][2:]:
-                    if j not in self.vocab_2_ind:
-                        vec.append(self.vocab_2_ind['UNK_token'])
-                    else:
-                        vec.append(self.vocab_2_ind[j])
+                if postfix:
+                    for j in templete['target_norm_post_template'][2:]:
+                        if j not in self.vocab_2_ind:
+                            vec.append(self.vocab_2_ind['UNK_token'])
+                        else:
+                            vec.append(self.vocab_2_ind[j])
+                else:
+                    for j in templete['target_template'][2:]:
+                        if j not in self.vocab_2_ind:
+                            vec.append(self.vocab_2_ind['UNK_token'])
+                        else:
+                            vec.append(self.vocab_2_ind[j])
                 vec.append(self.vocab_2_ind['END_token'])
                 batch_len.append(len(vec))
                 batch_var.append(vec)
@@ -87,7 +94,7 @@ class math23kDataLoader():
 
         return {'train_var':var,'train_len':lenth,'target_var':target_var,'target_len':target_lenth,
         'sentence':sen,'id':_id,'num_list':num_list,'solution':solution}
-    def test2vec(self,batch_size):
+    def test2vec(self,batch_size,postfix):
         var=[]
         lenth=[]
         target_var=[]
@@ -127,11 +134,18 @@ class math23kDataLoader():
             batch_len=[]
             for templete in batch_data:
                 vec=[]
-                for j in templete['target_template'][2:]:
-                    if j not in self.vocab_2_ind:
-                        vec.append(self.vocab_2_ind['UNK_token'])
-                    else:
-                        vec.append(self.vocab_2_ind[j])
+                if postfix:
+                    for j in templete['target_norm_post_template'][2:]:
+                        if j not in self.vocab_2_ind:
+                            vec.append(self.vocab_2_ind['UNK_token'])
+                        else:
+                            vec.append(self.vocab_2_ind[j])
+                else:
+                    for j in templete['target_template'][2:]:
+                        if j not in self.vocab_2_ind:
+                            vec.append(self.vocab_2_ind['UNK_token'])
+                        else:
+                            vec.append(self.vocab_2_ind[j])
                 vec.append(self.vocab_2_ind['END_token'])
                 batch_len.append(len(vec))
                 batch_var.append(vec)

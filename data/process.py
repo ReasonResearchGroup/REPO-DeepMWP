@@ -562,6 +562,173 @@ def rule1_stats(datas):
 def min_list_len(equ_lists):
     equ_lists=sorted(equ_lists,key=lambda x:len(x),reverse=False)
     return equ_lists[0]
+
+def math23k_data_process():
+    train_data=read_math23k_json('./data/math23k/math23k_train.json')
+    test_data=read_math23k_json('./data/math23k/math23k_test.json')
+    #data_sni=read_data_json(r'data\math23k\sni_DNS.json')
+    
+    new_train_data=[]
+    new_test_data=[]
+    new_valid_data=[]
+    rule1_list=rule1_stats(train_data)
+    for d in train_data:
+        new_data,_,_,_=data_process(d,rule1_list)
+        if new_data:
+            new_train_data.append(new_data)
+    rule1_list=rule1_stats(test_data)
+    for d in test_data:
+        new_data,_,_,_=data_process(d,rule1_list)
+        if new_data:
+            new_test_data.append(new_data)
+    
+    new_valid_data=new_train_data[:1000]
+    new_train_data=new_train_data[1000:]
+    return new_train_data,new_valid_data,new_test_data
+
+def post_data_process(data,rule1_list=None):
+    temp_data=data
+    temp_data=copy.deepcopy(data)
+    # {"id":"6",
+    # "original_text":"10.6-0.4与5.5的积，所得的差除以2.1，商=？",
+    # "segmented_text":"10.6 - 0.4 与 5.5 的 积 ， 所得 的 差 除以 2.1 ， 商 = ？",
+    # "equation":"x=(10.6-0.4*5.5)/2.1",
+    # "ans":"4"}
+    text=data['original_text']
+    equ_str=data["equation"]
+    '''word cut'''
+    text=jieba.cut(text,cut_all=False)
+    origin_text = ' '.join(text)
+    
+    word_list=origin_text.split(' ')
+    word_list=joint_number(word_list)
+    
+    '''mask'''
+    num_dict,new_text=mask_text(word_list)
+    equ_list=mask_equ(equ_str,num_dict)
+    
+    '''num_list'''
+    num_list=list(num_dict.keys())
+    num_list=num_list_processed(num_list)
+    
+    if '千' in equ_list:
+        equ_list = equ_list[:equ_list.index('千')]
+    
+    '''postfix'''
+    post=postfix_equation(equ_list)
+    
+    '''answer'''
+    post_equ_list=inverse_temp_to_num(post,num_list)
+    ans=post_solver(post_equ_list[2:])
+    
+    if abs(float(ans) - float(ans_process(data['ans']))) < 1e-4:
+        temp_data['new_split'] =origin_text
+        temp_data['text']=' '.join(new_text)
+        temp_data["target_norm_post_template"]=post
+        temp_data["target_template"]=equ_list
+        temp_data["num_list"]=num_list
+        temp_data["answer"]=float(ans_process(data['ans']))
+        return temp_data
+    else:
+        return None
+def rule_1_post_data_process(data,rule1_list):
+    temp_data=data
+    temp_data=copy.deepcopy(data)
+    # {"id":"6",
+    # "original_text":"10.6-0.4与5.5的积，所得的差除以2.1，商=？",
+    # "segmented_text":"10.6 - 0.4 与 5.5 的 积 ， 所得 的 差 除以 2.1 ， 商 = ？",
+    # "equation":"x=(10.6-0.4*5.5)/2.1",
+    # "ans":"4"}
+    text=data['original_text']
+    equ_str=data["equation"]
+    '''word cut'''
+    text=jieba.cut(text,cut_all=False)
+    origin_text = ' '.join(text)
+    
+    word_list=origin_text.split(' ')
+    word_list=joint_number(word_list)
+    
+    '''mask'''
+    num_dict,new_text=mask_text(word_list)
+    equ_list=mask_equ(equ_str,num_dict)
+    
+    '''num_list'''
+    num_list=list(num_dict.keys())
+    num_list=num_list_processed(num_list)
+    
+    if '千' in equ_list:
+        equ_list = equ_list[:equ_list.index('千')]
+    
+    '''rule 1'''
+    for equ_lists in rule1_list:
+        if equ_list in equ_lists:
+            equ_list=min_list_len(equ_lists)
+    
+    '''postfix'''
+    post=postfix_equation(equ_list)
+    
+    '''answer'''
+    post_equ_list=inverse_temp_to_num(post,num_list)
+    ans=post_solver(post_equ_list[2:])
+    
+    if abs(float(ans) - float(ans_process(data['ans']))) < 1e-4:
+        temp_data['new_split'] =origin_text
+        temp_data['text']=' '.join(new_text)
+        temp_data["target_norm_post_template"]=post
+        temp_data["target_template"]=equ_list
+        temp_data["num_list"]=num_list
+        temp_data["answer"]=float(ans_process(data['ans']))
+        return temp_data
+    else:
+        return None
+def rule_2_post_data_process(data,rule1_list=None):
+    temp_data=data
+    temp_data=copy.deepcopy(data)
+    # {"id":"6",
+    # "original_text":"10.6-0.4与5.5的积，所得的差除以2.1，商=？",
+    # "segmented_text":"10.6 - 0.4 与 5.5 的 积 ， 所得 的 差 除以 2.1 ， 商 = ？",
+    # "equation":"x=(10.6-0.4*5.5)/2.1",
+    # "ans":"4"}
+    text=data['original_text']
+    equ_str=data["equation"]
+    '''word cut'''
+    text=jieba.cut(text,cut_all=False)
+    origin_text = ' '.join(text)
+    
+    word_list=origin_text.split(' ')
+    word_list=joint_number(word_list)
+    
+    '''mask'''
+    num_dict,new_text=mask_text(word_list)
+    equ_list=mask_equ(equ_str,num_dict)
+    
+    '''num_list'''
+    num_list=list(num_dict.keys())
+    num_list=num_list_processed(num_list)
+    
+    if '千' in equ_list:
+        equ_list = equ_list[:equ_list.index('千')]
+    
+    '''rule 2'''
+    rule_2=norm_equation(equ_list)
+
+    '''postfix'''
+    post=postfix_equation(rule_2)
+    
+    '''answer'''
+    post_equ_list=inverse_temp_to_num(post,num_list)
+    ans=post_solver(post_equ_list[2:])
+    
+    if abs(float(ans) - float(ans_process(data['ans']))) < 1e-4:
+        temp_data['new_split'] =origin_text
+        temp_data['text']=' '.join(new_text)
+        temp_data["target_norm_post_template"]=post
+        temp_data["target_template"]=rule_2
+        temp_data["num_list"]=num_list
+        temp_data["answer"]=float(ans_process(data['ans']))
+        return temp_data
+    else:
+        return None
 def data_process(data,rule1_list):
     
     temp_data=data
@@ -613,10 +780,10 @@ def data_process(data,rule1_list):
         temp_data["target_template"]=rule_2
         temp_data["num_list"]=num_list
         temp_data["answer"]=float(ans_process(data['ans']))
-        return temp_data,equ_list,rule_2,rule_2_post
+        return temp_data
     else:
-        return None,equ_list,rule_2,rule_2_post
-def math23k_data_process():
+        return None
+def math23k_data_processing(rule_1=True,rule_2=True,postfix=True):
     train_data=read_math23k_json('./data/math23k/math23k_train.json')
     test_data=read_math23k_json('./data/math23k/math23k_test.json')
     #data_sni=read_data_json(r'data\math23k\sni_DNS.json')
@@ -624,97 +791,71 @@ def math23k_data_process():
     new_train_data=[]
     new_test_data=[]
     new_valid_data=[]
-    rule1_list=rule1_stats(train_data)
+    '''train'''
+    if rule_1:
+        rule1_list=rule1_stats(train_data)
     for d in train_data:
-        new_data,_,_,_=data_process(d,rule1_list)
-        if new_data:
+        if rule_1:
+            if rule_2:
+                new_data=data_process(d,rule1_list)
+            else:
+                new_data=rule_1_post_data_process(d,rule1_list)
+        else:
+            if rule_2:
+                new_data=rule_2_post_data_process(d)
+            else:
+                new_data=post_data_process(d)
+        if new_data != None:
             new_train_data.append(new_data)
-    rule1_list=rule1_stats(test_data)
+    '''test'''
+    if rule_1:
+        rule1_list=rule1_stats(test_data)
     for d in test_data:
-        new_data,_,_,_=data_process(d,rule1_list)
-        if new_data:
+        if rule_1:
+            if rule_2:
+                new_data=data_process(d,rule1_list)
+            else:
+                new_data=rule_1_post_data_process(d,rule1_list)
+        else:
+            if rule_2:
+                new_data=rule_2_post_data_process(d)
+            else:
+                new_data=post_data_process(d)
+        if new_data != None:
             new_test_data.append(new_data)
+    
+    random.shuffle(new_train_data)
+    random.shuffle(new_test_data)
     
     new_valid_data=new_train_data[:1000]
     new_train_data=new_train_data[1000:]
     return new_train_data,new_valid_data,new_test_data
-
+def test():
+    train,valid,test=math23k_data_processing(True,True,True)
+    print("1,1,1:\ntrain:{}\ntest:{}".format(len(train),len(test)))
+    train,valid,test=math23k_data_processing(True,False,True)
+    print("1,0,1:\ntrain:{}\ntest:{}".format(len(train),len(test)))
+    train,valid,test=math23k_data_processing(False,True,True)
+    print("0,1,1:\ntrain:{}\ntest:{}".format(len(train),len(test)))
+    train,valid,test=math23k_data_processing(False,False,True)
+    print("0,0,1:\ntrain:{}\ntest:{}".format(len(train),len(test)))
 if __name__ == "__main__":
-    
+    test()
     # train,valid,test=math23k_data_process()
     # print(len(train))
     # print(len(valid))
     # print(len(test))
-    template=[]
+    
+    ''' template=[]
     template_rule2=[]
     template_post=[]
     template_rule2_post=[]
     
-        
     train_data=read_math23k_json('./data/math23k/math23k_train.json')
     test_data=read_math23k_json('./datamath23k/math23k_test.json')
     data_sni=read_data_json('./data/math23k/sni_DNS.json')
     rule_1=[]
     rule1_list=rule1_stats(train_data)
-    ''' for d in train_data:
-        temp_data,equ_list,rule_2,rule_2_post=data_process(d)
-        #postfix=postfix_equation(equ_list)
-        rule_1.append(equ_list)
-    
-    samples=random.sample(range(10,100),k=16)
-    random.shuffle(samples)
-    ans_dict={}
-    for equ_list in rule_1:
-        new_equ=inverse_temp_to_num(equ_list,samples)
-        new_equ=list2str(new_equ)
-        new_equ=new_equ.replace("^","**",10)
-        ans=eval(new_equ[2:])
-        try:
-            ans_dict[ans].append(equ_list)
-        except:
-            ans_dict[ans]=[]
-            ans_dict[ans].append(equ_list)
-    class_list=[]
-    for k,v in ans_dict.items():
-        class_list.append(v)
-    
-    for i in range(50):
-        samples=random.sample(range(10,400),k=16)
-        random.shuffle(samples)
-        class_copy=copy.deepcopy(class_list)
-        class_list=[]
-        for equ_lists in class_copy:
-            ans_dict={}
-            for equ_list in equ_lists:
-                new_equ=inverse_temp_to_num(equ_list,samples)
-                new_equ=list2str(new_equ)
-                new_equ=new_equ.replace("^","**",10)
-                try:
-                    ans=eval(new_equ[2:])
-                except:
-                    ans=float("inf")
-                try:
-                    ans_dict[ans].append(equ_list)
-                except:
-                    ans_dict[ans]=[]
-                    ans_dict[ans].append(equ_list)
-            for k,v in ans_dict.items():
-                class_list.append(v)
-        print(len(class_list))
-    class_copy=copy.deepcopy(class_list)
-    class_list=[]
-    for equ_lists in class_copy:
-        class_list_temp=[]
-        for equ_list in equ_lists:
-            if equ_list not in class_list_temp:
-                class_list_temp.append(equ_list)
-        class_list.append(class_list_temp)
-    for equ_lists in class_list:
-        if len(equ_lists)>1:
-            print("------------------------------")
-            for equ_list in equ_lists:
-                print(list2str(equ_list))
-     '''
     for d in train_data:
         temp_data,equ_list,rule_2,rule_2_post=data_process(d,rule1_list)
         postfix=postfix_equation(equ_list)
@@ -744,7 +885,7 @@ if __name__ == "__main__":
     print("rule_1:",len(template))
     print("rule_1+rule_2:",len(template_rule2))
     print("postfix:",len(template_post))
-    print("rule2+postfix:",len(template_rule2_post)) 
+    print("rule2+postfix:",len(template_rule2_post))  '''
     
     #for i in template_rule2_post:
     #    print(i)

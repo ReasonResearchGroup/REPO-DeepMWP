@@ -24,6 +24,9 @@ class Mathen(nn.Module):
             
     def forward(self, input_variable, input_lengths=None, target_variable=None,\
                 teacher_forcing_ratio=1, mode=0, use_cuda=False):
+        if use_cuda:
+            input_variable=input_variable.cuda()
+            target_variable=target_variable.cuda()
         encoder_outputs, encoder_hidden = self.encoder(input_variable, input_lengths)
 
         encoder_hidden = encoder_hidden = tuple([self._cat_directions(h) for h in encoder_hidden])

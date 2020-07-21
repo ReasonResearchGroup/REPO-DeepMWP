@@ -1,5 +1,6 @@
 #import random
 import os
+import sys
 import numpy as np
 import pdb
 
@@ -14,10 +15,11 @@ from evaluate.evaluator import Evaluator
 from loss.Nllloss import NLLLoss
 from dataload.DataLoad import math23kDataLoader
 from model.RNN import *
-from data.process import math23k_data_process
+from data.process import math23k_data_processing
+os.environ["CUDA_VISIBLE_DEVICES"] = '0'
 
-def Mathen_rule1_2_Runner(cuda_use=False):
-    train_data,valid_data,test_data=math23k_data_process()
+def Mathen_Runner(cuda_use=False,rule_1=True,rule_2=True,postfix=True):
+    train_data,valid_data,test_data=math23k_data_processing(rule_1,rule_2,postfix)
     data_loader = math23kDataLoader(train_data,valid_data,test_data)
     encoder=MathenEncoder(vocab_size=data_loader.vocab_len,
                           emb_size = 128,
@@ -35,9 +37,10 @@ def Mathen_rule1_2_Runner(cuda_use=False):
                                 sos_id = data_loader.vocab_2_ind['END_token'],
                                 eos_id = data_loader.vocab_2_ind['END_token'],
                                 input_dropout_p = 0.3,
-                                dropout_p = 0.4,)
+                                dropout_p = 0.4)
     model=Mathen(encoder,decoder,data_loader)
-    
+    if cuda_use:
+        model.cuda()
     weight = torch.ones(data_loader.decode_classes_len)
     pad = data_loader.decode_classes_2_ind['PAD_token']
     loss = NLLLoss(weight, pad)
@@ -53,9 +56,8 @@ def Mathen_rule1_2_Runner(cuda_use=False):
     lr=0.001
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
     loss=NLLLoss()
-    train_data=data_loader.train2vec(batchsize)
-    test_data=data_loader.test2vec(batchsize)
-    
+    train_data=data_loader.train2vec(batchsize,postfix)
+    test_data=data_loader.test2vec(batchsize,postfix)
     for epo in range(epoch):
         loss_total=0
         model.train()
@@ -70,6 +72,9 @@ def Mathen_rule1_2_Runner(cuda_use=False):
             for step, step_output in enumerate(outputs_list):
             # cuda step_output = step_output.cuda()
                 target = target_var_i[:, step]
+                if cuda_use:
+                    target=target.cuda()
+                    step_output=step_output.cuda()
                 loss.eval_batch(step_output.contiguous().view(batchsize, -1), target)
             loss_total+=loss.get_loss()
             model.zero_grad()
@@ -84,7 +89,7 @@ def Mathen_rule1_2_Runner(cuda_use=False):
                                                             batch_size = batchsize,
                                                             evaluate_type = 0,
                                                             mode = 0,
-                                                            post_flag=False)
+                                                            post_flag=postfix)
         test_temp_acc, test_ans_acc =evaluator.evaluate(model = model,
                                                             data = test_data,
                                                             data_loader = data_loader,
@@ -92,19 +97,20 @@ def Mathen_rule1_2_Runner(cuda_use=False):
                                                             batch_size = batchsize,
                                                             evaluate_type = 0,
                                                             mode = 0,
-                                                            post_flag=False)
+                                                            post_flag=postfix)
         print("epoch[{}]\ntrain_tem_acc:{} / train_ans_acc:{}\ntest_tem_acc:{} / test_ans_acc:{}".format(
             epo,train_temp_acc, train_ans_acc,test_temp_acc,test_ans_acc))
+
 if __name__ == "__main__":
-    os.environ["CUDA_VISIBLE_DEVICES"] = '0'
-    device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    if device=="cuda":
-        model.cuda()
-        cuda_use=True
-    else:
-        cuda_use=False
+    cuda_use=True  if torch.cuda.is_available() else False
+    
     print("cuda_use:{}".format(cuda_use))
-    Mathen_rule1_2_Runner(cuda_use)
+    
+    rule_1=sys.argv[1]=="True"
+    rule_2=sys.argv[2]=="True"
+    postfix=sys.argv[3]=="True"
+    print(rule_1,rule_2,postfix)
+    Mathen_Runner(cuda_use,rule_1,rule_2,postfix)
     
     
     # train_data={'train_var':train_data['train_var'][:2],'train_len':train_data['train_len'][:2],
