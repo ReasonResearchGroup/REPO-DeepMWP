@@ -209,10 +209,8 @@ class Evaluator(object):
                 print 
             return ("compute error")
 
-    def evaluate(self, model,data, data_loader, total_num, batch_size, \
+    def evaluate(self, model,datas, data_loader, total_num, batch_size, \
                       evaluate_type, mode, post_flag=False, name_save='train'):
-        #batch_generator = data_loader.get_batch(data_list, batch_size, template_flag)
-
         if evaluate_type == 0:
             teacher_forcing_ratio = 0.0
         else:
@@ -226,119 +224,82 @@ class Evaluator(object):
         pg_total_list = []
         xxx = 0
 
-        for i,input_variables in enumerate(data['train_var']):
-            input_lengths = data['train_len'][i]
-            input_variables = Variable(torch.LongTensor(input_variables))
+        for i,data in enumerate(datas):
+            input_lengths = data['train_len']
+            input_variables = Variable(torch.LongTensor(data['train_var']))
 
             if self.cuda_use:
                 input_variables = input_variables.cuda()
             
-            batch_index = data['id'][i]
-            batch_text = data['sentence'][i]
-            batch_num_list = data['num_list'][i]
-            batch_solution = data['solution'][i]
-            batch_size = len(batch_index)
+            batch_index = data['id']
+            batch_text = data['sentence']
+            batch_num_list = data['num_list']
+            batch_solution = data['solution']
+            #batch_size = len(batch_index)
 
             #if template_flag == True:
-            target_variables = data['target_var'][i]
-            target_lengths = data['target_len'][i]
+            target_variables = data['target_var']
+            target_lengths = data['target_len']
 
             target_variables = Variable(torch.LongTensor(target_variables))
             if self.cuda_use:
                 target_variables = target_variables.cuda()
-            # else:
-            #     target_variables = None
+            
 
 
-            decoder_outputs, decoder_hidden, symbols_list = \
-                                  model(input_variable = input_variables,
-                                        input_lengths = input_lengths,
-                                        target_variable = target_variables,
-                                        teacher_forcing_ratio = teacher_forcing_ratio,
-                                        mode = mode,
-                                        use_cuda = self.cuda_use)
+            decoder_outputs, decoder_hidden, symbols_list = model(
+                                                input_variable = input_variables,
+                                                input_lengths = input_lengths,
+                                                target_variable = target_variables,
+                                                teacher_forcing_ratio = teacher_forcing_ratio,
+                                                mode = mode,
+                                                use_cuda = self.cuda_use)
 
 
             seqlist = symbols_list
             seq_var = torch.cat(seqlist, 1)
             batch_pg = []
-            #batch_att = []
+            
             for i in range(batch_size):
                 wp_index = batch_index[i]
                 p_list = []
-                #att_tmp_list = []
                 for j in range(len(decoder_outputs)): 
-                    #mm_elem_idx = seq_var[i][j].cpu().data.numpy()[0]
                     mm_elem_idx = seq_var[i][j].cpu().data.numpy().tolist()
-                    #cur_att = att_list[j][i,0,:].cpu().data.numpy().tolist()
-                    #print mm_elem_idx, self.end_in_classes_idx, mm_elem_idx == self.end_in_classes_idx
                     if mm_elem_idx == self.end_in_classes_idx:
                         break
                     num_p = decoder_outputs[j][i].topk(1)[0].cpu().data.numpy()[0]
                     p_list.append(str(num_p))
-                    #att_tmp_list.append(cur_att)
+                    
                 batch_pg.append(p_list)
-                #batch_att.append(att_tmp_list)
-
-            #xxx += batch_size
-            #print '>>>>>', xxx
-
+                
             for i in range(batch_size):
-                if 0:#print_flag_:
-                    print ('index',batch_index[i], '--',)
-                    print ('text', batch_text[i].encode('utf-8'))
-                #if template_flag==True:
                 target_equ = target_variables[i].cpu().data.numpy()
                 tmp_equ = []
                 if print_flag_:
                     print (target_equ)
                 for target_idx in target_equ:
-                    #elem = self.decode_classes_list[target_idx]
                     elem = self.vocab_list[target_idx]
                     if elem =='END_token':
                         break
                     tmp_equ.append(elem)
-                #print ' '.join(tmp_equ),
-                #if 0 and '1' in tmp_equ:
-                #    print 't1'
-                #else:
-                #    print 
-                #print target_equ
+                
                 gen_ans = self.compute_gen_ans(seq_var[i], batch_num_list[i], post_flag)
                 gen_equ = self.get_new_tempalte(seq_var[i], batch_num_list[i])
                 target_ans = batch_solution[i]
-                #print gen_equ
-                #print 'gen_ans', gen_ans, '--', 'target_ans', target_ans, '---',
-                #pdb.set_trace()
+                
                 pg_total_list.append(dict({'index': batch_index[i], 'gen_equ': gen_equ, \
                         'pg':batch_pg[i], 'gen_ans': gen_ans, 'ans': target_ans}))
                 if 'error' in gen_ans:
-                    #print False
-                    #print
                     id_right_and_error[-1].append(batch_index[i])
                     continue
                 else:
-                    #print 'kkkkk', gen_ans, target_ans
-                    #if '%' in str(gen_ans):
-                    #    gen_ans = str(gen_ans)[:-1]
-                    #if '%' in str(target_ans):
-                    #    target_ans = str(target_ans)[:-1]
                     if abs(float(gen_ans) - float(target_ans)) <1e-5:
                         acc_right += 1
                         id_right_and_error[1].append(batch_index[i])
-                        if 0:#print_flag_:
-                            print (True)
                     else:
                         id_right_and_error[0].append(batch_index[i])
-                        if 0:#print_flag_:
-                            print (False)
-                            print ()
-                        #print
                         continue 
-                if 0:#print_flag_:
-                    print ()
-                
-            #if template_flag == True:
+
             target_variables = self._convert_f_e_2_d_sybmbol(target_variables)
             if self.cuda_use:
                 target_variables = target_variables.cuda()
@@ -352,22 +313,116 @@ class Evaluator(object):
                     if target_variables[i][j].item() != seq_var[i][j].item():
                         break
                 count += right_flag
-
-        #with open("./data/id_right_and_error.json", 'w') as f:
-        #    json.dump(id_right_and_error, f)
-        #with open("./data/id_template.json", 'w') as f:
-        #    json.dump(id_template, f)
-        #pdb.set_trace()
         with open("./data/pg_seq_norm_"+str(post_flag)+"_"+name_save+".json", 'w') as f:
             json.dump(pg_total_list, f)
-        #if template_flag == True:
         print  ('\n--------',acc_right, total_num)
         return count*1.0/total_num, acc_right*1.0/total_num
-        # else:
-        #     print  ('--------',acc_right, total_num)
-        #     return 0, acc_right*1.0/total_num
                 
+    def evaluate_with_result(self, model,datas, data_loader, total_num, batch_size, \
+                      evaluate_type, mode,filename, post_flag=False ):
+        if evaluate_type == 0:
+            teacher_forcing_ratio = 0.0
+        else:
+            teacher_forcing_ratio = 1.0
 
+        count = 0
+        acc_right = 0
+
+        id_right_and_error = {1:[], 0:[], -1:[]} 
+        id_template = {}
+        pg_total_list = []
+        xxx = 0
+        for step,data in enumerate(datas):
+            input_lengths = data['train_len']
+            input_variables = Variable(torch.LongTensor(data['train_var']))
+
+            if self.cuda_use:
+                input_variables = input_variables.cuda()
+            
+            batch_index = data['id']
+            batch_text = data['sentence']
+            batch_num_list = data['num_list']
+            batch_solution = data['solution']
+            #batch_truth = data['truth']
+            target_variables = data['target_var']
+            target_lengths = data['target_len']
+            #target_variables = Variable(torch.LongTensor(target_variables))
+            if self.cuda_use:
+                target_variables = target_variables.cuda()
+            
+            decoder_outputs, decoder_hidden, symbols_list = model(
+                                        input_variable = input_variables,
+                                        input_lengths = input_lengths,
+                                        target_variable = target_variables,
+                                        teacher_forcing_ratio = teacher_forcing_ratio,
+                                        mode = mode,
+                                        use_cuda = self.cuda_use)
+            seqlist = symbols_list
+            seq_var = torch.cat(seqlist, 1)
+            batch_pg = []
+            for i in range(batch_size):
+                wp_index = batch_index[i]
+                p_list = []
+                for j in range(len(decoder_outputs)): 
+                    
+                    mm_elem_idx = seq_var[i][j].cpu().data.numpy().tolist()
+                    
+                    if mm_elem_idx == self.end_in_classes_idx:
+                        break
+                    num_p = decoder_outputs[j][i].topk(1)[0].cpu().data.numpy()[0]
+                    p_list.append(str(num_p))
+                batch_pg.append(p_list)
+            
+            target_equ_right_flag=[]
+            t_variables = self._convert_f_e_2_d_sybmbol(target_variables)
+            if self.cuda_use:
+                t_variables = t_variables.cuda()
+            for i in range(batch_size):
+                right_flag = 0
+                for j in range(t_variables.size(1)):
+                    if seq_var[i][j].item() == self.end_in_classes_idx and \
+                            t_variables[i][j].item() == self.end_in_classes_idx:
+                        right_flag = 1
+                        break
+                    if t_variables[i][j].item() != seq_var[i][j].item():
+                        break
+                target_equ_right_flag.append(right_flag)
+                count += right_flag
+
+            for i in range(batch_size):
+                target_equ = target_variables[i].cpu().data.numpy()
+                tmp_equ = []
+                if print_flag_:
+                    print (target_equ)
+                for target_idx in target_equ:
+                    elem = self.vocab_list[target_idx]
+                    if elem =='END_token':
+                        break
+                    tmp_equ.append(elem)
+
+                gen_ans = self.compute_gen_ans(seq_var[i], batch_num_list[i], post_flag)
+                gen_equ = self.get_new_tempalte(seq_var[i], batch_num_list[i])
+                target_ans = batch_solution[i]
+                tmp_equ=self.inverse_temp_to_num_(tmp_equ,batch_num_list[i])
+                if 'error' in gen_ans:
+                    ans_right_flag=-1
+                    #id_right_and_error[-1].append(batch_index[i])
+                else:
+                    if abs(float(gen_ans) - float(target_ans)) <1e-5:
+                        acc_right += 1
+                        #id_right_and_error[1].append(batch_index[i])
+                        ans_right_flag = 1
+                    else:
+                        #id_right_and_error[0].append(batch_index[i])
+                        ans_right_flag = 0
+                pg_total_list.append(dict({'index': batch_index[i], 'gen_equ': gen_equ, \
+                        'equ':tmp_equ,'gen_ans': gen_ans, 'ans': str(target_ans),
+                        'temp_right_flag':target_equ_right_flag[i],'ans_right_flag':ans_right_flag}))
+                
+        with open("./experiment/test_result_" + filename + ".json", 'w', encoding="utf-8") as f:
+            json.dump(pg_total_list, f,indent=4)
+        print  ('\n--------',acc_right, total_num)
+        return count*1.0/total_num, acc_right*1.0/total_num
     def _init_rl_state(self, encoder_hidden, bi_flag):
         if encoder_hidden is None:
             return None

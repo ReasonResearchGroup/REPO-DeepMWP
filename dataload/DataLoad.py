@@ -9,16 +9,16 @@ class math23kDataLoader():
         # self.train_data=self.read_data_json("./data/math23k/train23k_processed.json")
         # self.test_data=self.read_data_json("./data/math23k/test23k_processed.json")
         # self.valid_data=self.read_data_json("./data/math23k/valid23k_processed.json")
-        self.train_data=train_data
-        self.test_data=test_data
-        self.valid_data=valid_data
+        self.train_data = train_data
+        self.test_data = test_data
+        self.valid_data = valid_data
 
         self.emb_vectors,self.vocab_list,self.decode_classes_list = self.preprocess_and_word2vec(emb_dim=128)
         self.vocab_2_ind = self.word2ind(self.vocab_list)
         self.decode_classes_2_ind = self.word2ind(self.decode_classes_list)
 
-        self.vocab_len=len(self.vocab_list)
-        self.decode_classes_len=len(self.decode_classes_list)
+        self.vocab_len = len(self.vocab_list)
+        self.decode_classes_len = len(self.decode_classes_list)
     def train2vec(self,batch_size,postfix):
         var=[]
         lenth=[]
@@ -173,7 +173,7 @@ class math23kDataLoader():
         f=open(filename, 'r')
         return json.load(f)
     def preprocess_and_word2vec(self, emb_dim):
-        new_data ={}
+        new_data = {}
         sentences = []
         equ_dict = {}
         for elem in self.train_data:
@@ -224,10 +224,77 @@ class math23kDataLoader():
             new_variable.append(tmp)
         return Variable(torch.LongTensor(np.array(new_variable)))
     def word2ind(self,wordlist):
-        word2ind={}
+        word2ind = {}
         for index,item in enumerate(wordlist):
-            word2ind[item]=index
+            word2ind[item] = index
         return word2ind
-
+    def loading(self,data_type,batch_size,postfix):
+        '''
+        data_type:"train"/"test"/"valid"
+        '''
+        if data_type == "train":
+            data = self.train_data
+        elif data_type == "valid":
+            data = self.valid_data
+        else:
+            data = self.test_data
+        batch = int(len(data)/batch_size)
+        loaded_data = []
+        for i in range(batch):
+            batch_data = data[i*batch_size:(i+1)*batch_size]
+            '''text'''
+            batch_var = []
+            batch_len = []
+            batch_text = []
+            for text in batch_data:
+                vec = []
+                for j in text['text'].split(' '):
+                    if j not in self.vocab_2_ind:
+                        vec.append(self.vocab_2_ind['UNK_token'])
+                    else:
+                        vec.append(int(self.vocab_2_ind[j]))
+                sentence = text['text']
+                batch_text.append(sentence)
+                batch_len.append(len(vec))
+                batch_var.append(vec)
+            max_len = max(batch_len)
+            batch_var = [vec + [self.vocab_2_ind['PAD_token']] * (max_len - len(vec)) for vec in batch_var]
+            batch_var = torch.LongTensor(batch_var)
+            '''template'''
+            batch_tem_len = []
+            batch_tem_var = []
+            for templete in batch_data:
+                vec = []
+                if postfix:
+                    for j in templete['target_norm_post_template'][2:]:
+                        if j not in self.vocab_2_ind:
+                            vec.append(self.vocab_2_ind['UNK_token'])
+                        else:
+                            vec.append(self.vocab_2_ind[j])
+                else:
+                    for j in templete['target_template'][2:]:
+                        if j not in self.vocab_2_ind:
+                            vec.append(self.vocab_2_ind['UNK_token'])
+                        else:
+                            vec.append(self.vocab_2_ind[j])
+                vec.append(self.vocab_2_ind['END_token'])
+                batch_tem_len.append(len(vec))
+                batch_tem_var.append(vec)
+            max_len = max(batch_tem_len)
+            batch_tem_var = [vec + [self.vocab_2_ind['PAD_token']] * (max_len - len(vec)) for vec in batch_tem_var]
+            batch_tem_var = torch.LongTensor(batch_tem_var)
+            '''id num_list answer'''
+            batch_id = []
+            batch_num_list = []
+            batch_solution = []
+            #batch_truth_equ = []
+            for d in batch_data:
+                batch_id.append(d['id'])
+                batch_num_list.append(d['num_list'])
+                batch_solution.append(d['answer'])
+            loaded_data.append({'train_var':batch_var,'train_len':batch_len,'target_var':batch_tem_var,
+                                'target_len':batch_tem_len,'sentence':batch_text,'id':batch_id,
+                                'num_list':batch_num_list,'solution':batch_solution})
+        return loaded_data
 #math=math23kDataLoader()
 #print(math.decode_classes_2_ind)

@@ -13,20 +13,20 @@ from .attention import Attention
 #from evaluator import Evaluator,NLLLoss
 #from DataLoad import math23kDataLoader
 class Mathen(nn.Module):
-    def __init__(self, encoder, decoder,data_loader=None,device=None,decoder_function=F.log_softmax):
+    def __init__(self, encoder, decoder, data_loader=None, device=None, decoder_function=F.log_softmax):
         super().__init__()
         self.encoder = encoder
         self.decoder = decoder
-        self.dataloader=data_loader
+        self.dataloader = data_loader
         self.device = device
         self.decoder_function = decoder_function
         
             
-    def forward(self, input_variable, input_lengths=None, target_variable=None,\
+    def forward(self, input_variable, input_lengths=None, target_variable=None, \
                 teacher_forcing_ratio=1, mode=0, use_cuda=False):
         if use_cuda:
-            input_variable=input_variable.cuda()
-            target_variable=target_variable.cuda()
+            input_variable = input_variable.cuda()
+            target_variable = target_variable.cuda()
         encoder_outputs, encoder_hidden = self.encoder(input_variable, input_lengths)
 
         encoder_hidden = encoder_hidden = tuple([self._cat_directions(h) for h in encoder_hidden])
@@ -105,7 +105,7 @@ class MathenEncoder(nn.Module):
         embedded = self.input_dropout(embedded)
         #pdb.set_trace()
         
-        embedded = nn.utils.rnn.pack_padded_sequence(embedded, input_lengths, batch_first=True,enforce_sorted=False)
+        embedded = nn.utils.rnn.pack_padded_sequence(embedded, input_lengths, batch_first=True, enforce_sorted=False)
         output, hidden = self.rnn(embedded)
         
         output, _ = nn.utils.rnn.pad_packed_sequence(output, batch_first=True)
@@ -135,7 +135,7 @@ class MathenDecoder(nn.Module):
 
     def forward(self, inputs=None, encoder_hidden=None, encoder_outputs=None,\
                 function=F.log_softmax, teacher_forcing_ratio=0,\
-                use_cuda=False, class_list=None,vocab_dict=None):
+                use_cuda=False, class_list=None, vocab_dict=None):
         '''
         使用rule的时候，teacher_forcing_rattio = 0
         '''
