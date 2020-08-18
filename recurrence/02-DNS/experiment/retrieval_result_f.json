@@ -1,0 +1,212 @@
+[
+    {
+        "choosed_sentence": "\u5728 \u4e00\u6761 \u516c\u8def \u7684 \u4e00\u65c1 \u79cd \u4e86 temp_a \u68f5 \u67f3\u6811 \uff0c \u6bcf \u4e24\u68f5 \u67f3\u6811 \u4e4b\u95f4 \u76f8\u8ddd temp_b \u7c73 \uff0c \u8fd9 \u6761 \u516c\u8def \u6709 \u591a\u957f \uff1f",
+        "tar_sentence": "\u5728 \u4e00 \u6b63\u65b9\u5f62 \u82b1\u6c60 \u7684 temp_a \u5468\u683d \u4e86 temp_b \u68f5 \u67f3\u6811 \uff0c \u6bcf \u4e24\u68f5 \u67f3\u6811 \u4e4b\u95f4 \u7684 \u95f4\u9694 \u662f temp_c \u7c73 \uff0c \u8fd9\u4e2a \u6b63\u65b9\u5f62 \u7684 \u5468\u957f = \u591a\u5c11 \u7c73 \uff1f",
+        "choosed_equ": [
+            "(",
+            "temp_a",
+            "-",
+            "1",
+            ")",
+            "*",
+            "temp_b"
+        ],
+        "tar_equ": [
+            "temp_b",
+            "*",
+            "temp_c"
+        ]
+    },
+    {
+        "choosed_sentence": "\u6709 \u4e00\u4e2a \u7b49\u5dee\u6570\u5217 \uff1a temp_a \u3001 temp_b \u3001 temp_c \u3001 temp_d \u2026 temp_e \uff0c \u8fd9\u4e2a \u7b49\u5dee\u6570\u5217 \u5171\u6709 \u591a\u5c11 \u9879 \uff1f",
+        "tar_sentence": "\u5df2\u77e5 \u7b49\u5dee\u6570\u5217 \u9996\u9879 \u662f temp_a \uff0c \u7b2c temp_b \u9879\u662f temp_c \uff0c \u8fd9\u4e2a \u7b49\u5dee\u6570\u5217 \u7684 \u516c\u5dee = \uff0e",
+        "choosed_equ": [
+            "(",
+            "temp_e",
+            "-",
+            "temp_a",
+            ")",
+            "/",
+            "(",
+            "temp_b",
+            "-",
+            "temp_a",
+            ")",
+            "+",
+            "1"
+        ],
+        "tar_equ": [
+            "(",
+            "temp_c",
+            "-",
+            "temp_a",
+            ")",
+            "/",
+            "(",
+            "temp_b",
+            "-",
+            "1",
+            ")"
+        ]
+    },
+    {
+        "choosed_sentence": "\u4e24\u4e2a \u6570 \u7684 \u6700\u5927\u516c\u7ea6\u6570 \u662f temp_a \uff0c \u6700\u5c0f \u516c\u500d\u6570 \u662f temp_b \uff0c \u5176\u4e2d \u4e00\u4e2a \u6570\u662f temp_c \uff0c \u5219 \u53e6 \u4e00\u4e2a \u6570 = \uff0e",
+        "tar_sentence": "\u7532\u6570 \u662f temp_a \uff0c \u7532\u4e59 \u4e24\u6570 \u7684 \u6700\u5c0f \u516c\u500d\u6570 temp_b \uff0c \u6700\u5927\u516c\u7ea6\u6570 \u662f temp_c \uff0c \u90a3\u4e59\u6570 \u5e94\u8be5 = \uff0e",
+        "choosed_equ": [
+            "temp_b",
+            "*",
+            "temp_a",
+            "/",
+            "temp_c"
+        ],
+        "tar_equ": [
+            "temp_c",
+            "*",
+            "temp_b",
+            "/",
+            "temp_a"
+        ]
+    },
+    {
+        "choosed_sentence": "temp_a * temp_b = \uff0e",
+        "tar_sentence": "temp_a * temp_b = \uff0e",
+        "choosed_equ": [
+            "temp_a",
+            "*",
+            "temp_b"
+        ],
+        "tar_equ": [
+            "temp_a",
+            "*",
+            "temp_b"
+        ]
+    },
+    {
+        "choosed_sentence": "\u82b1\u56ed\u91cc \u6709 \u9ec4\u83ca\u82b1 temp_a \u76c6 \uff0c \u6bd4 \u767d\u83ca\u82b1 \u5c11 temp_b \u76c6 \uff0c \u82b1\u56ed\u91cc \u6709 \u83ca\u82b1 \u591a\u5c11 \u76c6 \uff1f",
+        "tar_sentence": "\u82b1\u56ed\u91cc \u6709 temp_a \u76c6 \u83ca\u82b1 \uff0c \u6708\u5b63\u82b1 \u6bd4 \u83ca\u82b1 \u7684 temp_b \u500d \u591a temp_c \u76c6 \uff0c \u82b1\u56ed\u91cc \u6709 \u591a\u5c11 \u76c6 \u6708\u5b63\u82b1 \uff1f",
+        "choosed_equ": [
+            "temp_a",
+            "+",
+            "temp_b",
+            "+",
+            "temp_a"
+        ],
+        "tar_equ": [
+            "temp_a",
+            "*",
+            "temp_b",
+            "+",
+            "temp_c"
+        ]
+    },
+    {
+        "choosed_sentence": "\u4e00\u4e2a \u6570 \u7684 temp_a \u662f temp_b \uff0c \u8fd9\u4e2a \u6570 = \uff1f",
+        "tar_sentence": "\u4e00\u4e2a \u6570 \u7684 temp_a \u662f temp_b \uff0c \u8fd9\u4e2a \u6570 = \uff1f",
+        "choosed_equ": [
+            "temp_b",
+            "/",
+            "temp_a"
+        ],
+        "tar_equ": [
+            "temp_b",
+            "/",
+            "temp_a"
+        ]
+    },
+    {
+        "choosed_sentence": "\u7532\u4e59 \u4e24\u5730 \u76f8\u8ddd temp_a \u5343\u7c73 \uff0c \u4e00\u8f86 \u6c7d\u8f66 \u4ece \u7532\u5730 \u5f00\u5f80 \u4e59\u5730 \uff0c temp_b \u5c0f\u65f6 \u884c\u9a76 \u4e86 temp_c \u5343\u7c73 \uff0c \u7167 \u8fd9\u6837 \u7684 \u901f\u5ea6 \uff0c \u8fd9\u8f86 \u6c7d\u8f66 \u8fd8 \u9700\u8981 \u591a\u5c11 \u65f6\u95f4 \u5c31 \u80fd \u5230\u8fbe \u4e59\u5730 \uff1f",
+        "tar_sentence": "\u7532\u4e59 \u4e24\u5730 \u76f8\u8ddd temp_a \u516c\u91cc \uff0c \u4e00\u8f86 \u6c7d\u8f66 \u4ece \u7532\u5730 \u5f00\u5f80 \u4e59\u5730 \uff0c temp_b \u5c0f\u65f6 \u884c\u9a76 \u4e86 temp_c \u516c\u91cc \uff0e \u7167 \u8fd9\u6837 \u7684 \u901f\u5ea6 \u518d \u884c\u9a76 \u591a\u5c11 \u5c0f\u65f6 \u8fd9\u8f86 \u6c7d\u8f66 \u5c31 \u53ef\u4ee5 \u5230\u8fbe \u4e59\u5730 \uff1f",
+        "choosed_equ": [
+            "(",
+            "temp_a",
+            "-",
+            "temp_c",
+            ")",
+            "/",
+            "(",
+            "temp_c",
+            "/",
+            "temp_b",
+            ")"
+        ],
+        "tar_equ": [
+            "(",
+            "temp_a",
+            "-",
+            "temp_c",
+            ")",
+            "/",
+            "(",
+            "temp_c",
+            "/",
+            "temp_b",
+            ")"
+        ]
+    },
+    {
+        "choosed_sentence": "\u7532 \u3001 \u4e59 \u4e24\u8f66 \u5206\u522b \u4ece A \u3001 B \u4e24\u5730 \u76f8\u5411 \u800c\u884c \uff0c \u7532\u8f66 \u6bcf \u5c0f\u65f6 \u884c\u9a76 temp_a \u5343\u7c73 \uff0c \u4e59\u8f66 \u6bcf \u5c0f\u65f6 \u884c\u9a76 temp_b \u5343\u7c73 \uff0c temp_c \u5c0f\u65f6 \u540e \u4e24\u8f66 \u76f8\u9047 \uff0e A \u3001 B \u4e24\u5730 \u76f8\u8ddd \u591a\u5c11 \u5343\u7c73 \uff1f",
+        "tar_sentence": "\u7532 \uff0c \u4e59 \u4e24\u5217 \u706b\u8f66 \u540c\u65f6 \u4ece A \u3001 B \u4e24\u5730 \u76f8\u5411 \u800c\u884c \uff0c \u7532\u8f66 \u5e73\u5747 \u6bcf \u5c0f\u65f6 \u884c\u9a76 temp_a \u5343\u7c73 \uff0c \u4e59\u8f66 \u5e73\u5747 \u6bcf \u5c0f\u65f6 \u884c\u9a76 temp_b \u5343\u7c73 \uff0c temp_c \u5c0f\u65f6 \u76f8\u9047 \uff0e A \u3001 B \u4e24\u5730 \u76f8\u8ddd \u591a\u5c11 \u5343\u7c73 \uff1f",
+        "choosed_equ": [
+            "(",
+            "temp_a",
+            "+",
+            "temp_b",
+            ")",
+            "*",
+            "temp_c"
+        ],
+        "tar_equ": [
+            "(",
+            "temp_a",
+            "+",
+            "temp_b",
+            ")",
+            "*",
+            "temp_c"
+        ]
+    },
+    {
+        "choosed_sentence": "\u6c34\u679c\u5e97 \u8fd0\u6765 \u82f9\u679c temp_a \u5343\u514b \uff0c \u8fd0\u6765 \u7684 \u6854\u5b50 \u662f \u82f9\u679c \u7684 temp_b \u500d \uff0e \u6c34\u679c\u5e97 \u8fd0\u6765 \u7684 \u82f9\u679c \u6bd4 \u6854\u5b50 \u5c11 \u591a\u5c11 \u5343\u514b \uff1f",
+        "tar_sentence": "\u6c34\u679c\u5e97 \u6709 \u82f9\u679c temp_a \u338f \uff0c \u5356\u51fa temp_b \u540e \uff0c \u5269\u4e0b \u7684 \u82f9\u679c \u6b63\u597d \u662f \u6854\u5b50 \u7684 temp_c \uff0c \u6c34\u679c\u5e97 \u6709 \u6854\u5b50 \u591a\u5c11 \u5343\u514b \uff1f",
+        "choosed_equ": [
+            "temp_a",
+            "*",
+            "(",
+            "temp_b",
+            "-",
+            "1",
+            ")"
+        ],
+        "tar_equ": [
+            "temp_a",
+            "*",
+            "(",
+            "1",
+            "-",
+            "temp_b",
+            ")",
+            "/",
+            "temp_c"
+        ]
+    },
+    {
+        "choosed_sentence": "\u5de5\u7a0b\u961f \u94fa \u4e00\u6761 \u8def \uff0c \u8ba1\u5212 \u6bcf\u5929 \u94fa temp_a \u7c73 \uff0c temp_b \u5929 \u53ef\u4ee5 \u94fa \u5b8c \uff0e \u5b9e\u9645 \u53ea\u7528 \u4e86 temp_c \u5929 \uff0c \u5e73\u5747 \u6bcf\u5929 \u94fa \u591a\u5c11 \u7c73 \uff1f",
+        "tar_sentence": "\u4e24\u4e2a \u94fa\u8def \u961f \u4ece \u4e24\u7aef \u540c\u65f6 \u65bd\u5de5 \u94fa \u4e00\u6761 temp_a m \u7684 \u8def \uff0c \u7532\u961f \u6bcf\u5929 \u94fa temp_b m \uff0c \u4e59\u961f \u6bcf\u5929 \u94fa temp_c m \uff0c \u591a\u5c11 \u5929\u80fd \u94fa \u5b8c \u8fd9 \u6761\u8def \uff1f",
+        "choosed_equ": [
+            "temp_a",
+            "*",
+            "temp_b",
+            "/",
+            "temp_c"
+        ],
+        "tar_equ": [
+            "temp_a",
+            "/",
+            "(",
+            "temp_b",
+            "+",
+            "temp_c",
+            ")"
+        ]
+    }
+]
